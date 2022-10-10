@@ -2,8 +2,11 @@
 name = "disambiseq"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "Create unambiguous one-off mismatch libraries for DNA sequences"
+repository = "https://github.com/noamteyssier/disambiseq"
+license = "MIT"
+keywords = ["bioinformatics", "sequencing", "DNA", "mismatch"]
+categories = ["science"]
 
 [dependencies]
 hashbrown = "0.12.3"
