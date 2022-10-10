@@ -1,5 +1,8 @@
 # disambiseq
 
+[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE.md)
+![actions status](https://github.com/noamteyssier/disambiseq/workflows/CI/badge.svg)
+
 Creates unambiguous nucleotide mismatch libraries for
 for a set of nucleotide sequences.
 
