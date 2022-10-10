@@ -3,6 +3,8 @@
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE.md)
 ![actions status](https://github.com/noamteyssier/disambiseq/workflows/CI/badge.svg)
 [![codecov](https://codecov.io/gh/noamteyssier/disambiseq/branch/main/graph/badge.svg?token=Y4Z9RJILHH)](https://codecov.io/gh/noamteyssier/disambiseq)
+[![Crates.io](https://img.shields.io/crates/v/disambiseq)](https://crates.io/crates/disambiseq)
+[![docs.rs](https://img.shields.io/docsrs/disambiseq)](https://docs.rs/disambiseq)
 
 Creates unambiguous nucleotide mismatch libraries for
 for a set of nucleotide sequences.
