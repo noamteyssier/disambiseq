@@ -77,4 +77,4 @@
 
 mod disambiseq;
 mod sequence;
-pub use crate::{disambiseq::Disambiseq, sequence::Sequence};
+pub use crate::{disambiseq::{Disambiseq, SeqWrapper}, sequence::Sequence};
