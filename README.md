@@ -46,7 +46,6 @@ Disambiseq {
         "ACG": "ACT",
         "TGT": "AGT",
         "AGC": "AGT",
-        "AGT": "ACT",
         "AGG": "AGT",
     },
     parents: {
