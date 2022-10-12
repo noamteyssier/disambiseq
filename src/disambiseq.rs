@@ -1,7 +1,7 @@
 use std::{borrow::Borrow, rc::Rc};
 
-use hashbrown::{HashMap, HashSet};
 use crate::sequence::Sequence;
+use hashbrown::{HashMap, HashSet};
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
 pub struct SeqWrapper(Rc<String>);
@@ -41,32 +41,28 @@ impl Disambiseq {
 
         // iterate through all sequence mutations
         for mutation in Sequence::new(parent.borrow()).mutate_all() {
-
             let mutation = SeqWrapper(Rc::new(mutation));
-            
+
             // skip ambigiuous or parental sequences
             if self.ambiguous.contains(&mutation) | self.parents.contains(&mutation) {
-                continue
+                continue;
             }
-            
+
             // if the sequence has seen before it becomes ambiguous
             if self.unambiguous.contains_key(&mutation) {
                 self.ambiguous.insert(mutation.clone());
                 self.unambiguous.remove(&mutation);
-            
+
             // purely unambiguous sequence found
             } else {
                 self.unambiguous.insert(mutation.clone(), parent.clone());
             }
         }
-
     }
 
     pub fn from_slice(sequences: &[String]) -> Self {
         let mut dsq = Self::new();
-        sequences
-            .iter()
-            .for_each(|x| dsq.insert(x));
+        sequences.iter().for_each(|x| dsq.insert(x));
         dsq
     }
     pub fn get_parent(&self, seq: &str) -> Option<&SeqWrapper> {
@@ -93,10 +89,7 @@ mod testing {
 
     #[test]
     fn init_slice() {
-        let sequences = vec![
-            "ACT".to_string(),
-            "AGT".to_string()
-        ];
+        let sequences = vec!["ACT".to_string(), "AGT".to_string()];
         let das = Disambiseq::from_slice(&sequences);
         assert_eq!(das.parents().len(), 2);
         assert_eq!(das.ambiguous().len(), 2);
@@ -105,30 +98,21 @@ mod testing {
 
     #[test]
     fn parental_get() {
-        let sequences = vec![
-            "ACT".to_string(),
-            "AGT".to_string()
-        ];
+        let sequences = vec!["ACT".to_string(), "AGT".to_string()];
         let das = Disambiseq::from_slice(&sequences);
         assert_eq!(das.get_parent("ACT").unwrap().sequence(), "ACT");
     }
 
     #[test]
     fn mutation_get() {
-        let sequences = vec![
-            "ACT".to_string(),
-            "AGT".to_string()
-        ];
+        let sequences = vec!["ACT".to_string(), "AGT".to_string()];
         let das = Disambiseq::from_slice(&sequences);
         assert_eq!(das.get_parent("TCT").unwrap().sequence(), "ACT");
     }
 
     #[test]
     fn ambiguous_get() {
-        let sequences = vec![
-            "ACT".to_string(),
-            "AGT".to_string()
-        ];
+        let sequences = vec!["ACT".to_string(), "AGT".to_string()];
         let das = Disambiseq::from_slice(&sequences);
         assert_eq!(das.get_parent("ATT"), None);
     }

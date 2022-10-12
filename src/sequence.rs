@@ -4,12 +4,9 @@ pub struct Sequence<'a> {
     seq: &'a str,
 }
 impl<'a> Sequence<'a> {
-
     /// Instantiates a new sequence
     pub fn new(seq: &'a str) -> Self {
-        Self {
-            seq
-        }
+        Self { seq }
     }
 
     /// Returns the internal sequence length
@@ -30,8 +27,7 @@ impl<'a> Sequence<'a> {
     pub fn mutate_position(&self, pos: usize) -> Vec<String> {
         let (prefix, poschar) = self.seq.split_at(pos);
         let (_, suffix) = self.seq.split_at(pos + 1);
-        LEX
-            .iter()
+        LEX.iter()
             .filter(|c| **c != poschar.chars().nth(0).unwrap())
             .map(|c| self.build_mutation(prefix, suffix, c))
             .collect()
@@ -80,7 +76,12 @@ mod testing {
         let bases = "ACGT";
         let seq = Sequence::new(bases);
         let muts = seq.mutate_all();
-        assert_eq!(muts, vec!["CCGT", "GCGT", "TCGT", "AAGT", "AGGT", "ATGT", "ACAT", "ACCT", "ACTT", "ACGA", "ACGC", "ACGG"]);
+        assert_eq!(
+            muts,
+            vec![
+                "CCGT", "GCGT", "TCGT", "AAGT", "AGGT", "ATGT", "ACAT", "ACCT", "ACTT", "ACGA",
+                "ACGC", "ACGG"
+            ]
+        );
     }
 }
-
