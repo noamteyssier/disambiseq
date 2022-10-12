@@ -4,7 +4,7 @@ use crate::sequence::Sequence;
 use hashbrown::{HashMap, HashSet};
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
-pub struct SeqWrapper(Rc<String>);
+pub struct SeqWrapper(pub Rc<String>);
 impl Borrow<str> for SeqWrapper {
     fn borrow(&self) -> &str {
         (*self.0).borrow()
