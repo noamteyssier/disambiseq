@@ -1,6 +1,6 @@
 use std::{borrow::Borrow, rc::Rc};
 
-use crate::sequence::Sequence;
+use crate::{sequence::Sequence, utils::reverse_complement};
 use hashbrown::{HashMap, HashSet};
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
@@ -21,6 +21,7 @@ pub struct Disambiseq {
     unambiguous: HashMap<SeqWrapper, SeqWrapper>,
     parents: HashSet<SeqWrapper>,
     ambiguous: HashSet<SeqWrapper>,
+    null: HashSet<SeqWrapper>,
 }
 impl Disambiseq {
     pub fn new() -> Self {
@@ -28,9 +29,32 @@ impl Disambiseq {
             unambiguous: HashMap::new(),
             parents: HashSet::new(),
             ambiguous: HashSet::new(),
+            null: HashSet::new(),
         }
     }
 
+    fn insert_alias(&mut self, child: String, parent: &SeqWrapper) {
+        let child = SeqWrapper(Rc::new(child));
+
+        // skip ambigiuous or parental sequences
+        if self.ambiguous.contains(&child) | self.parents.contains(&child) | self.null.contains(&child) {
+            return;
+        }
+
+        // if the sequence has seen before it becomes ambiguous
+        if self.unambiguous.contains_key(&child) {
+            self.ambiguous.insert(child.clone());
+            self.unambiguous.remove(&child);
+
+        // purely unambiguous sequence found
+        } else {
+            self.unambiguous.insert(child.clone(), parent.clone());
+        }
+
+    }
+
+    /// Inserts a parent sequence with which to create all unambiguous
+    /// point mutations.
     pub fn insert(&mut self, parent: &str) {
         let parent = SeqWrapper(Rc::new(parent.to_string()));
         self.parents.insert(parent.clone());
@@ -39,25 +63,37 @@ impl Disambiseq {
             self.unambiguous.remove(&parent);
         }
 
-        // iterate through all sequence mutations
-        for mutation in Sequence::new(parent.borrow()).mutate_all() {
-            let mutation = SeqWrapper(Rc::new(mutation));
+        Sequence::new(parent.borrow())
+            .mutate_all()
+            .into_iter()
+            .for_each(|x| {self.insert_alias(x, &parent)});
+        
+    }
+    
+    /// Inserts a parent sequence with which to create all unambiguous
+    /// point mutations as well as the reverse complement of those sequences.
+    pub fn insert_with_reverse_complement(&mut self, parent: &str) {
+        let parent_revc = SeqWrapper(Rc::new(reverse_complement(parent)));
+        let parent = SeqWrapper(Rc::new(parent.to_string()));
+        self.parents.insert(parent.clone());
 
-            // skip ambigiuous or parental sequences
-            if self.ambiguous.contains(&mutation) | self.parents.contains(&mutation) {
-                continue;
-            }
-
-            // if the sequence has seen before it becomes ambiguous
-            if self.unambiguous.contains_key(&mutation) {
-                self.ambiguous.insert(mutation.clone());
-                self.unambiguous.remove(&mutation);
-
-            // purely unambiguous sequence found
-            } else {
-                self.unambiguous.insert(mutation.clone(), parent.clone());
-            }
+        if self.unambiguous.contains_key(&parent) {
+            self.unambiguous.remove(&parent);
         }
+
+        // insert parent reverse_complement with potential overwriting
+        self.unambiguous.insert(parent_revc.clone(), parent.clone());
+
+        // blacklist reverse complement of parent
+        self.null.insert(parent_revc.clone());
+
+        Sequence::new(parent.borrow())
+            .mutate_all()
+            .into_iter()
+            .for_each(|x| {
+                self.insert_alias(reverse_complement(&x), &parent);
+                self.insert_alias(x, &parent);
+            });
     }
 
     pub fn from_slice(sequences: &[String]) -> Self {
@@ -78,7 +114,7 @@ impl Disambiseq {
     pub fn ambiguous(&self) -> &HashSet<SeqWrapper> {
         &self.ambiguous
     }
-    pub fn mutations(&self) -> &HashMap<SeqWrapper, SeqWrapper> {
+    pub fn unambiguous(&self) -> &HashMap<SeqWrapper, SeqWrapper> {
         &self.unambiguous
     }
 }
@@ -93,7 +129,7 @@ mod testing {
         let das = Disambiseq::from_slice(&sequences);
         assert_eq!(das.parents().len(), 2);
         assert_eq!(das.ambiguous().len(), 2);
-        assert_eq!(das.mutations().len(), 12);
+        assert_eq!(das.unambiguous().len(), 12);
     }
 
     #[test]
@@ -125,6 +161,22 @@ mod testing {
         dsq.insert(sequences[1]);
         assert_eq!(dsq.parents().len(), 2);
         assert_eq!(dsq.ambiguous().len(), 2);
-        assert_eq!(dsq.mutations().len(), 12);
+        assert_eq!(dsq.unambiguous().len(), 12);
+    }
+
+    #[test]
+    fn init_rc() {
+        let sequences = vec!["ACTAA", "AGTAA"];
+        let mut dsq = Disambiseq::new();
+        dsq.insert_with_reverse_complement(sequences[0]);
+        dsq.insert_with_reverse_complement(sequences[1]);
+        assert_eq!(dsq.parents().len(), 2);
+        assert_eq!(dsq.ambiguous().len(), 4);
+        assert_eq!(dsq.unambiguous().len(), 50);
+        assert_eq!(dsq.get_parent("TTAGT").unwrap().sequence(), "ACTAA");
+        assert_eq!(dsq.get_parent("ACTAA").unwrap().sequence(), "ACTAA");
+        assert_eq!(dsq.get_parent("TTACT").unwrap().sequence(), "AGTAA");
+        assert_eq!(dsq.get_parent("AGTAA").unwrap().sequence(), "AGTAA");
+        assert_eq!(dsq.get_parent("ATAGT").unwrap().sequence(), "ACTAA");
     }
 }
