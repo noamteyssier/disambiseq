@@ -65,10 +65,10 @@
 //! let dsq = Disambiseq::from_slice(&sequences);
 //! 
 //! // retrieve a parental sequence
-//! assert_eq!(dsq.get_parent("ACT"), Some(&"ACT".to_string()));
+//! assert_eq!(dsq.get_parent("ACT").unwrap().sequence(), "ACT");
 //! 
 //! // retrieve a mutation sequence's parent
-//! assert_eq!(dsq.get_parent("TCT"), Some(&"ACT".to_string()));
+//! assert_eq!(dsq.get_parent("TCT").unwrap().sequence(), "ACT");
 //! 
 //! // exclude sequences with ambiguous parents
 //! assert_eq!(dsq.get_parent("AAT"), None);
