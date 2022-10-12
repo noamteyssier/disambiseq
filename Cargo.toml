@@ -1,6 +1,6 @@
 [package]
 name = "disambiseq"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 description = "Create unambiguous one-off mismatch libraries for DNA sequences"
 repository = "https://github.com/noamteyssier/disambiseq"
