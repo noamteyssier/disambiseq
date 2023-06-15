@@ -37,7 +37,10 @@ impl Disambiseq {
         let child = SeqWrapper(Rc::new(child));
 
         // skip ambigiuous or parental sequences
-        if self.ambiguous.contains(&child) | self.parents.contains(&child) | self.null.contains(&child) {
+        if self.ambiguous.contains(&child)
+            | self.parents.contains(&child)
+            | self.null.contains(&child)
+        {
             return;
         }
 
@@ -50,14 +53,13 @@ impl Disambiseq {
         } else {
             self.unambiguous.insert(child.clone(), parent.clone());
         }
-
     }
 
     /// Inserts a parent sequence with which to create all unambiguous
     /// point mutations.
     pub fn insert(&mut self, parent: &str) {
         if self.parents.contains(parent) {
-            return
+            return;
         }
 
         let parent = SeqWrapper(Rc::new(parent.to_string()));
@@ -70,15 +72,14 @@ impl Disambiseq {
         Sequence::new(parent.borrow())
             .mutate_all()
             .into_iter()
-            .for_each(|x| {self.insert_alias(x, &parent)});
-        
+            .for_each(|x| self.insert_alias(x, &parent));
     }
-    
+
     /// Inserts a parent sequence with which to create all unambiguous
     /// point mutations as well as the reverse complement of those sequences.
     pub fn insert_with_reverse_complement(&mut self, parent: &str) {
         if self.parents.contains(parent) {
-            return
+            return;
         }
         let parent_revc = SeqWrapper(Rc::new(reverse_complement(parent)));
         let parent = SeqWrapper(Rc::new(parent.to_string()));
