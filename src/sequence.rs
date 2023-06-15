@@ -47,7 +47,6 @@ pub struct ByteSequence<'a> {
     seq: &'a [u8],
 }
 impl<'a> ByteSequence<'a> {
-
     /// Instantiates a new sequence
     pub fn new(seq: &'a [u8]) -> Self {
         Self { seq }
@@ -71,7 +70,8 @@ impl<'a> ByteSequence<'a> {
     pub fn mutate_position(&self, pos: usize) -> Vec<Vec<u8>> {
         let (prefix, poschar) = self.seq.split_at(pos);
         let (_, suffix) = self.seq.split_at(pos + 1);
-        BYTE_LEX.iter()
+        BYTE_LEX
+            .iter()
             .filter(|c| **c != poschar[0])
             .map(|c| self.build_mutation(prefix, suffix, c))
             .collect()

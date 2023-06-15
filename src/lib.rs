@@ -79,4 +79,8 @@ mod disambibyte;
 mod disambiseq;
 mod sequence;
 mod utils;
-pub use crate::{disambibyte::{ByteWrapper, Disambibyte}, disambiseq::{Disambiseq, SeqWrapper}, sequence::Sequence};
+pub use crate::{
+    disambibyte::{ByteWrapper, Disambibyte},
+    disambiseq::{Disambiseq, SeqWrapper},
+    sequence::Sequence,
+};

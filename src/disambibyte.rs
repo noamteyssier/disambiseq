@@ -1,6 +1,6 @@
-use std::{borrow::Borrow, rc::Rc};
-use hashbrown::{HashMap, HashSet};
 use crate::{sequence::ByteSequence, utils::reverse_complement_bytes};
+use hashbrown::{HashMap, HashSet};
+use std::{borrow::Borrow, rc::Rc};
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
 pub struct ByteWrapper(pub Rc<Vec<u8>>);
@@ -36,7 +36,10 @@ impl Disambibyte {
         let child = ByteWrapper(Rc::new(child));
 
         // skip ambigiuous or parental sequences
-        if self.ambiguous.contains(&child) | self.parents.contains(&child) | self.null.contains(&child) {
+        if self.ambiguous.contains(&child)
+            | self.parents.contains(&child)
+            | self.null.contains(&child)
+        {
             return;
         }
 
@@ -49,14 +52,13 @@ impl Disambibyte {
         } else {
             self.unambiguous.insert(child.clone(), parent.clone());
         }
-
     }
 
     /// Inserts a parent sequence with which to create all unambiguous
     /// point mutations.
     pub fn insert(&mut self, parent: &[u8]) {
         if self.parents.contains(parent) {
-            return
+            return;
         }
 
         let parent = ByteWrapper(Rc::new(parent.to_vec()));
@@ -69,15 +71,14 @@ impl Disambibyte {
         ByteSequence::new(parent.borrow())
             .mutate_all()
             .into_iter()
-            .for_each(|x| {self.insert_alias(x, &parent)});
-        
+            .for_each(|x| self.insert_alias(x, &parent));
     }
-    
+
     /// Inserts a parent sequence with which to create all unambiguous
     /// point mutations as well as the reverse complement of those sequences.
     pub fn insert_with_reverse_complement(&mut self, parent: &[u8]) {
         if self.parents.contains(parent) {
-            return
+            return;
         }
         let parent_revc = ByteWrapper(Rc::new(reverse_complement_bytes(parent)));
         let parent = ByteWrapper(Rc::new(parent.to_vec()));

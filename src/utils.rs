@@ -2,15 +2,13 @@
 pub fn reverse_complement(sequence: &str) -> String {
     sequence
         .chars()
-        .map(|c| { 
-            match c {
-                'A' => 'T',
-                'C' => 'G',
-                'G' => 'C',
-                'T' => 'A',
-                'N' => 'N',
-                _ => panic!("Unexpected nucleotide found in reverse complement"),
-            }
+        .map(|c| match c {
+            'A' => 'T',
+            'C' => 'G',
+            'G' => 'C',
+            'T' => 'A',
+            'N' => 'N',
+            _ => panic!("Unexpected nucleotide found in reverse complement"),
         })
         .rev()
         .collect()
@@ -20,15 +18,13 @@ pub fn reverse_complement(sequence: &str) -> String {
 pub fn reverse_complement_bytes(sequence: &[u8]) -> Vec<u8> {
     sequence
         .iter()
-        .map(|c| { 
-            match c {
-                b'A' => b'T',
-                b'C' => b'G',
-                b'G' => b'C',
-                b'T' => b'A',
-                b'N' => b'N',
-                _ => panic!("Unexpected nucleotide found in reverse complement"),
-            }
+        .map(|c| match c {
+            b'A' => b'T',
+            b'C' => b'G',
+            b'G' => b'C',
+            b'T' => b'A',
+            b'N' => b'N',
+            _ => panic!("Unexpected nucleotide found in reverse complement"),
         })
         .rev()
         .collect()
