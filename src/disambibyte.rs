@@ -15,7 +15,7 @@ impl ByteWrapper {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Default)]
 pub struct Disambibyte {
     unambiguous: HashMap<ByteWrapper, ByteWrapper>,
     parents: HashSet<ByteWrapper>,
@@ -24,12 +24,7 @@ pub struct Disambibyte {
 }
 impl Disambibyte {
     pub fn new() -> Self {
-        Self {
-            unambiguous: HashMap::new(),
-            parents: HashSet::new(),
-            ambiguous: HashSet::new(),
-            null: HashSet::new(),
-        }
+        Self::default()
     }
 
     fn insert_alias(&mut self, child: Vec<u8>, parent: &ByteWrapper) {

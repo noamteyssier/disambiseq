@@ -16,7 +16,7 @@ impl SeqWrapper {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Default)]
 pub struct Disambiseq {
     unambiguous: HashMap<SeqWrapper, SeqWrapper>,
     parents: HashSet<SeqWrapper>,
@@ -25,12 +25,7 @@ pub struct Disambiseq {
 }
 impl Disambiseq {
     pub fn new() -> Self {
-        Self {
-            unambiguous: HashMap::new(),
-            parents: HashSet::new(),
-            ambiguous: HashSet::new(),
-            null: HashSet::new(),
-        }
+        Self::default()
     }
 
     fn insert_alias(&mut self, child: String, parent: &SeqWrapper) {

@@ -37,8 +37,7 @@ impl<'a> Sequence<'a> {
     /// Generates all mutations of the sequence
     pub fn mutate_all(&self) -> Vec<String> {
         (0..self.len())
-            .map(|idx| self.mutate_position(idx))
-            .flatten()
+            .flat_map(|idx| self.mutate_position(idx))
             .collect()
     }
 }
@@ -80,8 +79,7 @@ impl<'a> ByteSequence<'a> {
     /// Generates all mutations of the sequence
     pub fn mutate_all(&self) -> Vec<Vec<u8>> {
         (0..self.len())
-            .map(|idx| self.mutate_position(idx))
-            .flatten()
+            .flat_map(|idx| self.mutate_position(idx))
             .collect()
     }
 }
