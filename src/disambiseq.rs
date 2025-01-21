@@ -1,10 +1,10 @@
-use std::{borrow::Borrow, rc::Rc};
+use std::{borrow::Borrow, sync::Arc};
 
 use crate::{sequence::Sequence, utils::reverse_complement};
 use hashbrown::{HashMap, HashSet};
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
-pub struct SeqWrapper(pub Rc<String>);
+pub struct SeqWrapper(pub Arc<String>);
 impl Borrow<str> for SeqWrapper {
     fn borrow(&self) -> &str {
         (*self.0).borrow()
@@ -29,7 +29,7 @@ impl Disambiseq {
     }
 
     fn insert_alias(&mut self, child: String, parent: &SeqWrapper) {
-        let child = SeqWrapper(Rc::new(child));
+        let child = SeqWrapper(Arc::new(child));
 
         // skip ambigiuous or parental sequences
         if self.ambiguous.contains(&child)
@@ -57,7 +57,7 @@ impl Disambiseq {
             return;
         }
 
-        let parent = SeqWrapper(Rc::new(parent.to_string()));
+        let parent = SeqWrapper(Arc::new(parent.to_string()));
         self.parents.insert(parent.clone());
 
         if self.unambiguous.contains_key(&parent) {
@@ -76,8 +76,8 @@ impl Disambiseq {
         if self.parents.contains(parent) {
             return;
         }
-        let parent_revc = SeqWrapper(Rc::new(reverse_complement(parent)));
-        let parent = SeqWrapper(Rc::new(parent.to_string()));
+        let parent_revc = SeqWrapper(Arc::new(reverse_complement(parent)));
+        let parent = SeqWrapper(Arc::new(parent.to_string()));
         self.parents.insert(parent.clone());
 
         if self.unambiguous.contains_key(&parent) {

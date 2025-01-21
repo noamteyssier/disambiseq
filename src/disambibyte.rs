@@ -1,9 +1,9 @@
 use crate::{sequence::ByteSequence, utils::reverse_complement_bytes};
 use hashbrown::{HashMap, HashSet};
-use std::{borrow::Borrow, rc::Rc};
+use std::{borrow::Borrow, sync::Arc};
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
-pub struct ByteWrapper(pub Rc<Vec<u8>>);
+pub struct ByteWrapper(pub Arc<Vec<u8>>);
 impl Borrow<[u8]> for ByteWrapper {
     fn borrow(&self) -> &[u8] {
         (*self.0).borrow()
@@ -28,7 +28,7 @@ impl Disambibyte {
     }
 
     fn insert_alias(&mut self, child: Vec<u8>, parent: &ByteWrapper) {
-        let child = ByteWrapper(Rc::new(child));
+        let child = ByteWrapper(Arc::new(child));
 
         // skip ambigiuous or parental sequences
         if self.ambiguous.contains(&child)
@@ -56,7 +56,7 @@ impl Disambibyte {
             return;
         }
 
-        let parent = ByteWrapper(Rc::new(parent.to_vec()));
+        let parent = ByteWrapper(Arc::new(parent.to_vec()));
         self.parents.insert(parent.clone());
 
         if self.unambiguous.contains_key(&parent) {
@@ -75,8 +75,8 @@ impl Disambibyte {
         if self.parents.contains(parent) {
             return;
         }
-        let parent_revc = ByteWrapper(Rc::new(reverse_complement_bytes(parent)));
-        let parent = ByteWrapper(Rc::new(parent.to_vec()));
+        let parent_revc = ByteWrapper(Arc::new(reverse_complement_bytes(parent)));
+        let parent = ByteWrapper(Arc::new(parent.to_vec()));
         self.parents.insert(parent.clone());
 
         if self.unambiguous.contains_key(&parent) {
