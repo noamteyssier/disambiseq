@@ -1,6 +1,6 @@
 [package]
 name = "disambiseq"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 description = "Create unambiguous one-off mismatch libraries for DNA sequences"
 repository = "https://github.com/noamteyssier/disambiseq"
@@ -10,4 +10,4 @@ keywords = ["bioinformatics", "sequencing", "DNA", "mismatch"]
 categories = ["science"]
 
 [dependencies]
-hashbrown = "0.14.5"
+hashbrown = "0.15.2"
