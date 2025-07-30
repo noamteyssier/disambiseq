@@ -16,8 +16,8 @@
 //! use disambiseq::Disambiseq;
 //!
 //! let sequences = vec![
-//!     "ACT".to_string(),
-//!     "AGT".to_string()
+//!     b"ACT".to_vec(),
+//!     b"AGT".to_vec()
 //! ];
 //! let dsq = Disambiseq::from_slice(&sequences);
 //! println!("{:#?}", dsq);
@@ -59,28 +59,26 @@
 //! use disambiseq::Disambiseq;
 //!
 //! let sequences = vec![
-//!     "ACT".to_string(),
-//!     "AGT".to_string()
+//!     b"ACT".to_vec(),
+//!     b"AGT".to_vec()
 //! ];
 //! let dsq = Disambiseq::from_slice(&sequences);
 //!
 //! // retrieve a parental sequence
-//! assert_eq!(dsq.get_parent("ACT").unwrap().sequence(), "ACT");
+//! assert_eq!(dsq.get_parent(b"ACT").unwrap().sequence(), b"ACT");
 //!
 //! // retrieve a mutation sequence's parent
-//! assert_eq!(dsq.get_parent("TCT").unwrap().sequence(), "ACT");
+//! assert_eq!(dsq.get_parent(b"TCT").unwrap().sequence(), b"ACT");
 //!
 //! // exclude sequences with ambiguous parents
-//! assert_eq!(dsq.get_parent("AAT"), None);
-//! assert_eq!(dsq.get_parent("ATT"), None);
+//! assert_eq!(dsq.get_parent(b"AAT"), None);
+//! assert_eq!(dsq.get_parent(b"ATT"), None);
 //! ```
 
-mod disambibyte;
-mod disambiseq;
+mod map;
 mod sequence;
 mod utils;
 pub use crate::{
-    disambibyte::{ByteWrapper, Disambibyte},
-    disambiseq::{Disambiseq, SeqWrapper},
+    map::{ByteWrapper, Disambiseq},
     sequence::Sequence,
 };

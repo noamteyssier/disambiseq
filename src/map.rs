@@ -1,6 +1,8 @@
-use crate::{sequence::ByteSequence, utils::reverse_complement_bytes};
-use hashbrown::{HashMap, HashSet};
 use std::{borrow::Borrow, sync::Arc};
+
+use hashbrown::{HashMap, HashSet};
+
+use crate::{sequence::ByteSequence, utils::reverse_complement};
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
 pub struct ByteWrapper(pub Arc<Vec<u8>>);
@@ -16,13 +18,13 @@ impl ByteWrapper {
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct Disambibyte {
+pub struct Disambiseq {
     unambiguous: HashMap<ByteWrapper, ByteWrapper>,
     parents: HashSet<ByteWrapper>,
     ambiguous: HashSet<ByteWrapper>,
     null: HashSet<ByteWrapper>,
 }
-impl Disambibyte {
+impl Disambiseq {
     pub fn new() -> Self {
         Self::default()
     }
@@ -75,7 +77,7 @@ impl Disambibyte {
         if self.parents.contains(parent) {
             return;
         }
-        let parent_revc = ByteWrapper(Arc::new(reverse_complement_bytes(parent)));
+        let parent_revc = ByteWrapper(Arc::new(reverse_complement(parent)));
         let parent = ByteWrapper(Arc::new(parent.to_vec()));
         self.parents.insert(parent.clone());
 
@@ -93,7 +95,7 @@ impl Disambibyte {
             .mutate_all()
             .into_iter()
             .for_each(|x| {
-                self.insert_alias(reverse_complement_bytes(&x), &parent);
+                self.insert_alias(reverse_complement(&x), &parent);
                 self.insert_alias(x, &parent);
             });
     }
@@ -123,12 +125,12 @@ impl Disambibyte {
 
 #[cfg(test)]
 mod testing {
-    use super::Disambibyte;
+    use super::Disambiseq;
 
     #[test]
     fn init_slice() {
         let sequences = vec![b"ACT".to_vec(), b"AGT".to_vec()];
-        let dsb = Disambibyte::from_slice(&sequences);
+        let dsb = Disambiseq::from_slice(&sequences);
         assert_eq!(dsb.parents().len(), 2);
         assert_eq!(dsb.ambiguous().len(), 2);
         assert_eq!(dsb.unambiguous().len(), 12);
@@ -137,28 +139,28 @@ mod testing {
     #[test]
     fn parental_get() {
         let sequences = vec![b"ACT".to_vec(), b"AGT".to_vec()];
-        let dsb = Disambibyte::from_slice(&sequences);
+        let dsb = Disambiseq::from_slice(&sequences);
         assert_eq!(dsb.get_parent(b"ACT").unwrap().sequence(), b"ACT");
     }
 
     #[test]
     fn mutation_get() {
         let sequences = vec![b"ACT".to_vec(), b"AGT".to_vec()];
-        let dsb = Disambibyte::from_slice(&sequences);
+        let dsb = Disambiseq::from_slice(&sequences);
         assert_eq!(dsb.get_parent(b"TCT").unwrap().sequence(), b"ACT");
     }
 
     #[test]
     fn ambiguous_get() {
         let sequences = vec![b"ACT".to_vec(), b"AGT".to_vec()];
-        let dsb = Disambibyte::from_slice(&sequences);
+        let dsb = Disambiseq::from_slice(&sequences);
         assert_eq!(dsb.get_parent(b"ATT"), None);
     }
 
     #[test]
     fn init() {
         let sequences = vec![b"ACT", b"AGT"];
-        let mut dsb = Disambibyte::new();
+        let mut dsb = Disambiseq::new();
         dsb.insert(sequences[0]);
         dsb.insert(sequences[1]);
         assert_eq!(dsb.parents().len(), 2);
@@ -169,7 +171,7 @@ mod testing {
     #[test]
     fn init_rc() {
         let sequences = vec![b"ACTAA", b"AGTAA"];
-        let mut dsb = Disambibyte::new();
+        let mut dsb = Disambiseq::new();
         dsb.insert_with_reverse_complement(sequences[0]);
         dsb.insert_with_reverse_complement(sequences[1]);
         assert_eq!(dsb.parents().len(), 2);
