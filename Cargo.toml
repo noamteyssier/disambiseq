@@ -10,5 +10,5 @@ keywords = ["bioinformatics", "sequencing", "DNA", "mismatch"]
 categories = ["science"]
 
 [dependencies]
-hashbrown = "0.15.2"
+hashbrown = "0.15.4"
 thiserror = "2.0.12"
