@@ -11,3 +11,4 @@ categories = ["science"]
 
 [dependencies]
 hashbrown = "0.15.2"
+thiserror = "2.0.12"
