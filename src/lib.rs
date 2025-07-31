@@ -1,84 +1,56 @@
 //! # disambiseq
 //!
-//! ## Background
+//! A Rust library for creating DNA sequence lookup tables with single-mismatch tolerance.
 //!
-//! I've rewritten this functionality a few times for different use cases
-//! and put it into a standalone crate since it might be useful to others.
+//! ## Summary
 //!
-//! This is used to generate unambiguous one-off mismatch libraries for
-//! a set of DNA sequences.
+//! Creates hash tables that can match sequences even with single-base errors.
+//! Automatically removes ambiguous sequences that could match multiple parents.
 //!
 //! ## Usage
 //!
-//! ### Creating a new unambiguous set
-//!
 //! ```rust
-//! use disambiseq::Disambiseq;
+//! use disambiseq::{Disambiseq, Error};
 //!
-//! let sequences = vec![
-//!     b"ACT".to_vec(),
-//!     b"AGT".to_vec()
-//! ];
-//! let dsq = Disambiseq::from_slice(&sequences);
-//! println!("{:#?}", dsq);
-//! ```
+//! fn main() -> Result<(), Error> {
+//!     // Create lookup table from parent sequences
+//!     let library = vec![
+//!         b"ACTG".to_vec(),
+//!         b"AGTC".to_vec(),
+//!         b"ACTC".to_vec(),
+//!     ];
+//!     let disambiseq = Disambiseq::new(&library)?;
 //!
-//! ### Visualizing the set
+//!     // Find matches (exact or single mismatch)
+//!     assert_eq!(disambiseq.get_index(b"ACTG"), Some(0));  // Exact match
+//!     assert_eq!(disambiseq.get_index(b"CCTG"), Some(0));  // 1 mismatch
+//!     assert_eq!(disambiseq.get_index(b"AGTG"), None);     // Ambiguous match
+//!     assert_eq!(disambiseq.get_index(b"TTTT"), None);     // No match
 //!
-//! ```text
-//! Disambiseq {
-//!     unambiguous: {
-//!         "TCT": "ACT",
-//!         "ACA": "ACT",
-//!         "CCT": "ACT",
-//!         "ACC": "ACT",
-//!         "CGT": "AGT",
-//!         "GGT": "AGT",
-//!         "AGA": "AGT",
-//!         "GCT": "ACT",
-//!         "ACG": "ACT",
-//!         "TGT": "AGT",
-//!         "AGC": "AGT",
-//!         "AGT": "ACT",
-//!         "AGG": "AGT",
-//!     },
-//!     parents: {
-//!         "AGT",
-//!         "ACT",
-//!     },
-//!     ambiguous: {
-//!         "ATT",
-//!         "AAT",
-//!     },
+//!     // Get original parent sequence
+//!     let parent = disambiseq.get_parent(b"CCTG");
+//!     assert_eq!(parent, Some(b"ACTG".as_slice()));
+//!
+//!     Ok(())
 //! }
 //! ```
 //!
-//! ### Querying the Set
+//! ## API
 //!
-//! ```rust
-//! use disambiseq::Disambiseq;
+//! - **`Disambiseq::new(sequences)`** - Create lookup with mismatch tolerance
+//! - **`Disambiseq::new_exact(sequences)`** - Create lookup for exact matches only
+//! - **`get_index(sequence)`** - Find parent index for a sequence
+//! - **`get_parent(sequence)`** - Get parent sequence for a sequence
+//! - **`index_parent(index)`** - Get parent sequence for an index
 //!
-//! let sequences = vec![
-//!     b"ACT".to_vec(),
-//!     b"AGT".to_vec()
-//! ];
-//! let dsq = Disambiseq::from_slice(&sequences);
+//! ## Use cases
 //!
-//! // retrieve a parental sequence
-//! assert_eq!(dsq.get_parent(b"ACT").unwrap().sequence(), b"ACT");
-//!
-//! // retrieve a mutation sequence's parent
-//! assert_eq!(dsq.get_parent(b"TCT").unwrap().sequence(), b"ACT");
-//!
-//! // exclude sequences with ambiguous parents
-//! assert_eq!(dsq.get_parent(b"AAT"), None);
-//! assert_eq!(dsq.get_parent(b"ATT"), None);
-//! ```
+//! - Barcode demultiplexing with sequencing errors
+//! - Primer matching with mismatches
+//! - Sequence classification with error tolerance
 
+mod error;
 mod map;
-mod sequence;
-mod utils;
-pub use crate::{
-    map::{ByteWrapper, Disambiseq},
-    sequence::Sequence,
-};
+
+pub use error::Error;
+pub use map::Disambiseq;
